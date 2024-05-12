@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.hero-section {
+    background-image: url('/assets/image/palmtree-2xl.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: right top; /* Initially position the palm tree to the bottom right */
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        background-position: center bottom; /* Adjust for smaller screens to center the background */
+    }
+}
