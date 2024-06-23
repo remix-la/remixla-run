@@ -1,24 +1,54 @@
-import type { Password, User } from "@prisma/client";
+import { randomBytes } from "node:crypto";
+
+import type { Password, Prisma, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { sha256 } from "js-sha256";
 
 import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
+export type UserWithRelations = Prisma.UserGetPayload<{
+  include: { notes: true };
+}>;
+
+export async function getUsers() {
+  return prisma.user.findMany({});
+}
+
 export async function getUserById(id: User["id"]) {
-  return prisma.user.findUnique({ where: { id } });
+  return prisma.user.findUnique({
+    where: { id },
+    include: {
+      notes: true,
+    },
+  });
 }
 
 export async function getUserByEmail(email: User["email"]) {
-  return prisma.user.findUnique({ where: { email } });
+  return prisma.user.findUnique({
+    where: { email },
+    include: {
+      notes: true,
+    },
+  });
 }
 
-export async function createUser(email: User["email"], password: string) {
+export async function createUser(
+  email: User["email"],
+  password: string,
+  doNotSell: boolean,
+) {
+  const newToken = randomBytes(16).toString("hex");
+  const hashedNewToken = sha256(newToken);
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   return prisma.user.create({
     data: {
       email,
+      doNotSell,
+      token: hashedNewToken,
       password: {
         create: {
           hash: hashedPassword,
@@ -29,7 +59,21 @@ export async function createUser(email: User["email"], password: string) {
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
-  return prisma.user.delete({ where: { email } });
+  return prisma.user.delete({
+    where: { email },
+    include: {
+      notes: true,
+    },
+  });
+}
+
+export async function deleteUserById(id: User["id"]) {
+  return prisma.user.delete({
+    where: { id },
+    include: {
+      notes: true,
+    },
+  });
 }
 
 export async function verifyLogin(
@@ -60,4 +104,98 @@ export async function verifyLogin(
   const { password: _password, ...userWithoutPassword } = userWithPassword;
 
   return userWithoutPassword;
+}
+
+export async function verifyEmail({
+  userId,
+  token,
+}: {
+  userId: string;
+  token: string | undefined;
+}) {
+  let user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (user?.token === token) {
+    user = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        emailVerified: true,
+        token: undefined,
+      },
+    });
+  }
+
+  return user;
+}
+
+export async function newToken({ userId }: { userId: string }) {
+  const newToken = randomBytes(16).toString("hex");
+  const hashedNewToken = sha256(newToken);
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      token: hashedNewToken,
+    },
+  });
+
+  return user;
+}
+
+export async function updateProfile({
+  id,
+  doNotSell,
+  visualAvatar,
+  visualAvatarDescription,
+}: {
+  id: string;
+  email: string;
+  doNotSell: boolean;
+  visualAvatar: string | undefined;
+  visualAvatarDescription: string | undefined;
+}) {
+  return await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      doNotSell,
+      visualAvatar,
+      visualAvatarDescription,
+    },
+  });
+}
+
+export async function getUserByToken(token: string | undefined) {
+  return await prisma.user.findUnique({ where: { token: token } });
+}
+
+export async function resetPassword(token: string, password: string) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = await prisma.user.update({
+    where: {
+      token: token,
+    },
+    data: {
+      token: undefined,
+    },
+  });
+
+  if (user) {
+    await prisma.password.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        hash: hashedPassword,
+      },
+    });
+  }
+
+  return user;
 }

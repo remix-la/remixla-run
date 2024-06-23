@@ -1,7 +1,10 @@
+import { Page, Site } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
+import { type ClassValue, clsx } from "clsx";
 import { useMemo } from "react";
+import { twMerge } from "tailwind-merge";
 
-import type { User } from "~/models/user.server";
+import type { UserWithRelations } from "~/models/user.server";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -44,7 +47,7 @@ export function useMatchesData(
   return route?.data as Record<string, unknown>;
 }
 
-function isUser(user: unknown): user is User {
+function isUser(user: unknown): user is UserWithRelations {
   return (
     user != null &&
     typeof user === "object" &&
@@ -53,7 +56,28 @@ function isUser(user: unknown): user is User {
   );
 }
 
-export function useOptionalUser(): User | undefined {
+function isSettings(settings: unknown): settings is Site {
+  return (
+    settings != null &&
+    typeof settings === "object" &&
+    "name" in settings &&
+    typeof settings.name === "string" &&
+    "lede" in settings &&
+    typeof settings.lede === "string" &&
+    "tagline" in settings &&
+    typeof settings.tagline === "string" &&
+    "logo" in settings &&
+    typeof settings.logo === "string" &&
+    "logoDescription" in settings &&
+    typeof settings.logoDescription === "string"
+  );
+}
+
+function isPages(pages: unknown): pages is Page[] {
+  return pages != null && Array.isArray(pages);
+}
+
+export function useOptionalUser(): UserWithRelations | undefined {
   const data = useMatchesData("root");
   if (!data || !isUser(data.user)) {
     return undefined;
@@ -61,7 +85,7 @@ export function useOptionalUser(): User | undefined {
   return data.user;
 }
 
-export function useUser(): User {
+export function useUser(): UserWithRelations {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
     throw new Error(
@@ -71,6 +95,109 @@ export function useUser(): User {
   return maybeUser;
 }
 
+export function useSettings(): Site | undefined {
+  const data = useMatchesData("root");
+  if (!data || !isSettings(data.settings)) {
+    return undefined;
+  }
+  return data.settings;
+}
+
+export function usePages(): Page[] | undefined {
+  const data = useMatchesData("root");
+  if (!data || !isPages(data.pages)) {
+    return undefined;
+  }
+  return data.pages;
+}
+
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
+}
+
+export function classNames(...classes: (string | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export function getDomain() {
+  return process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : process.env.DEFAULT_URL;
+}
+
+export function colorLuminance(hex: string, lum: number) {
+  hex = String(hex).replace(/[^0-9a-f]/gi, "");
+  if (hex.length < 6) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  lum = lum || 0;
+
+  let rgb = "#",
+    c,
+    i;
+  for (i = 0; i < 3; i++) {
+    c = parseInt(hex.substr(i * 2, 2), 16);
+    c = Math.round(Math.min(Math.max(0, c + c * lum), 255)).toString(16);
+    rgb += ("00" + c).substr(c.length);
+  }
+
+  return rgb;
+}
+
+export interface SelectionTypeEntity {
+  name: string;
+  color: string;
+  image: string | undefined;
+  imageDescription: string | undefined;
+}
+
+const WEEK_IN_MILLIS = 6.048e8,
+  DAY_IN_MILLIS = 8.64e7,
+  HOUR_IN_MILLIS = 3.6e6,
+  MIN_IN_MILLIS = 6e4,
+  SEC_IN_MILLIS = 1e3;
+
+export const timeFromNow = (date: string) => {
+  const formatter = new Intl.RelativeTimeFormat("en", { style: "long" });
+
+  const millis = new Date(date).getTime();
+  const diff = millis - new Date().getTime();
+  if (Math.abs(diff) > WEEK_IN_MILLIS)
+    return formatter.format(Math.trunc(diff / WEEK_IN_MILLIS), "week");
+  else if (Math.abs(diff) > DAY_IN_MILLIS)
+    return formatter.format(Math.trunc(diff / DAY_IN_MILLIS), "day");
+  else if (Math.abs(diff) > HOUR_IN_MILLIS)
+    return formatter.format(
+      Math.trunc((diff % DAY_IN_MILLIS) / HOUR_IN_MILLIS),
+      "hour",
+    );
+  else if (Math.abs(diff) > MIN_IN_MILLIS)
+    return formatter.format(
+      Math.trunc((diff % HOUR_IN_MILLIS) / MIN_IN_MILLIS),
+      "minute",
+    );
+  else
+    return formatter.format(
+      Math.trunc((diff % MIN_IN_MILLIS) / SEC_IN_MILLIS),
+      "second",
+    );
+};
+
+export function isDark(color: string) {
+  const hexColor = +(
+    "0x" + color.slice(1).replace((color.length < 5 && /./g) || "", "$&$&")
+  );
+  const r = hexColor >> 16;
+  const g = (hexColor >> 8) & 255;
+  const b = hexColor & 255;
+  const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+  if (hsp > 127.5) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

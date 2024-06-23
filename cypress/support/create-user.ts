@@ -1,6 +1,6 @@
 // Use this to create a new user and login with that user
 // Simply call this with:
-// npx ts-node -r tsconfig-paths/register ./cypress/support/create-user.ts username@example.com,
+// npx tsx ./cypress/support/create-user.ts username@example.com,
 // and it will log out the cookie value you can use to interact with the server
 // as that new user.
 
@@ -20,7 +20,7 @@ async function createAndLogin(email: string) {
     throw new Error("All test emails must end in @example.com");
   }
 
-  const user = await createUser(email, "myreallystrongpassword");
+  const user = await createUser(email, "myreallystrongpassword", true);
 
   const response = await createUserSession({
     request: new Request("test://test"),

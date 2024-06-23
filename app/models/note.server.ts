@@ -2,51 +2,78 @@ import type { User, Note } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export function getNote({
-  id,
-  userId,
-}: Pick<Note, "id"> & {
+interface NoteProps {
+  id: Note["id"] | undefined;
+  name: Note["name"];
+  body: Note["body"] | undefined;
+  image: Note["image"] | undefined;
+  imageDescription: Note["imageDescription"] | undefined;
   userId: User["id"];
-}) {
-  return prisma.note.findFirst({
-    select: { id: true, body: true, title: true },
-    where: { id, userId },
-  });
 }
 
-export function getNoteListItems({ userId }: { userId: User["id"] }) {
+export function getNotes(userId: string) {
   return prisma.note.findMany({
-    where: { userId },
-    select: { id: true, title: true },
-    orderBy: { updatedAt: "desc" },
-  });
-}
-
-export function createNote({
-  body,
-  title,
-  userId,
-}: Pick<Note, "body" | "title"> & {
-  userId: User["id"];
-}) {
-  return prisma.note.create({
-    data: {
-      title,
-      body,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+    where: {
+      userId,
     },
   });
 }
 
-export function deleteNote({
-  id,
+export function getNote({ id }: Pick<Note, "id">) {
+  return prisma.note.findUnique({
+    where: {
+      id,
+    },
+  });
+}
+
+export async function createNote({
+  name,
+  body,
+  image,
+  imageDescription,
   userId,
-}: Pick<Note, "id"> & { userId: User["id"] }) {
-  return prisma.note.deleteMany({
-    where: { id, userId },
+}: NoteProps) {
+  return prisma.note.create({
+    data: {
+      name,
+      body,
+      image,
+      imageDescription,
+      userId,
+    },
+  });
+}
+
+export async function updateNote({
+  id,
+  name,
+  body,
+  image,
+  imageDescription,
+  userId,
+}: NoteProps) {
+  return await prisma.note.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+      body,
+      image,
+      imageDescription,
+      userId,
+    },
+  });
+}
+
+export async function deleteMostData(id: User["id"]) {
+  return prisma.user.update({
+    where: { id },
+    data: {
+      notes: {
+        deleteMany: {},
+      },
+    },
   });
 }

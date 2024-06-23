@@ -1,141 +1,270 @@
+import {
+  AdjustmentsVerticalIcon,
+  BeakerIcon,
+  CheckBadgeIcon,
+  CircleStackIcon,
+  CloudArrowUpIcon,
+  CodeBracketIcon,
+  EnvelopeIcon,
+  MagnifyingGlassIcon,
+  ServerStackIcon,
+  UserGroupIcon,
+  LockClosedIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/20/solid";
 import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 
+import BrowserMockup from "~/components/browser-mockup";
+import { NavigationSite, NavigationSiteFooter } from "~/components/navigation";
+import PhoneMockup from "~/components/phone-mockup";
+import { Button } from "~/components/ui/button";
 import { useOptionalUser } from "~/utils";
 
-export const meta: MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: MetaFunction = () => [{ title: "Privacy Stack" }];
 
 export default function Index() {
   const user = useOptionalUser();
+
   return (
-    <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
-      <div className="relative sm:pb-16 sm:pt-8">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
-            <div className="absolute inset-0">
-              <img
-                className="h-full w-full object-cover"
-                src="https://user-images.githubusercontent.com/1500684/157774694-99820c51-8165-4908-a031-34fc371ac0d6.jpg"
-                alt="Sonic Youth On Stage"
-              />
-              <div className="absolute inset-0 bg-[color:rgba(254,204,27,0.5)] mix-blend-multiply" />
+    <div className="">
+      <NavigationSite />
+      <div className="mx-auto max-w-6xl px-6 py-6 sm:py-8 lg:flex lg:items-center lg:gap-x-10 lg:px-8 lg:pt-24 lg:pb-10">
+        <div className="mx-auto max-w-2xl lg:mx-0 lg:flex-auto">
+          <h1 className="max-w-lg text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+            Privacy Stack
+          </h1>
+          <p className="text-lg leading-8 text-gray-600 my-10">
+            The Privacy Stack is an open source web app with consent-centered
+            privacy design and accessible components. You get self-serve GDPR
+            and CCPA user flows out of the box with easy data access and
+            deletion, and undo-signup. We also packed in a lot of other goodies,
+            like user profiles, file uploads, and a UI library with lots of
+            patterns to choose from. The Privacy Stack comes with a demo notes
+            app, which you can try out here:
+          </p>
+
+          {user ? (
+            <div className="flex gap-4">
+              <Button asChild variant="secondary">
+                <Link to="/app/settings/data">Check your data</Link>
+              </Button>
+
+              <Button asChild>
+                <Link to="/app/dashboard/notes">Create a note</Link>
+              </Button>
             </div>
-            <div className="relative px-4 pb-8 pt-16 sm:px-6 sm:pb-14 sm:pt-24 lg:px-8 lg:pb-20 lg:pt-32">
-              <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
-                <span className="block uppercase text-yellow-500 drop-shadow-md">
-                  Indie Stack
-                </span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
-                Check the README.md file for instructions on how to get this
-                project deployed.
-              </p>
-              <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
-                {user ? (
-                  <Link
-                    to="/notes"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-                  >
-                    View Notes for {user.email}
-                  </Link>
-                ) : (
-                  <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
-                    <Link
-                      to="/join"
-                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-                    >
-                      Sign up
-                    </Link>
-                    <Link
-                      to="/login"
-                      className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-3 font-medium text-white hover:bg-yellow-600"
-                    >
-                      Log In
-                    </Link>
-                  </div>
-                )}
+          ) : (
+            <div className="space-y-4 w-64 mx-auto mt-0 md:mt-18">
+              <div className="flex gap-4 justify-between w-full">
+                <Button asChild variant="secondary" className="flex-1">
+                  <Link to="/auth/login"> Log in</Link>
+                </Button>
+                <Button asChild className="flex-1">
+                  <Link to="/auth/join">Sign up</Link>
+                </Button>
               </div>
-              <a href="https://remix.run">
-                <img
-                  src="https://user-images.githubusercontent.com/1500684/158298926-e45dafff-3544-4b69-96d6-d3bcc33fc76a.svg"
-                  alt="Remix"
-                  className="mx-auto mt-16 w-full max-w-[12rem] md:max-w-[16rem]"
-                />
-              </a>
+              <p className=" text-xs font-bold text-slate-700 p-1 rounded text-center gap-2  flex px-4">
+                <LockClosedIcon className="w-4" />
+                We make it easy to undo signup.
+              </p>{" "}
             </div>
+          )}
+        </div>
+
+        <PhoneMockup>
+          <img
+            alt="Screenshot of the data access screen."
+            src="/site/data-mobile.png"
+          />
+        </PhoneMockup>
+      </div>
+      <div className="bg-white py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl sm:text-center">
+            <h2 className="text-base font-semibold leading-7 text-slate-600">
+              Start with privacy defaults
+            </h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Build Privacy-centric Apps
+            </p>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              With the Privacy Stack you get a fully featured web app with
+              privacy enthusiastically baked in, and heap of developer
+              conveniences to make your work smoother.
+            </p>
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-          <div className="mt-6 flex flex-wrap justify-center gap-8">
-            {[
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764397-ccd8ea10-b8aa-4772-a99b-35de937319e1.svg",
-                alt: "Fly.io",
-                href: "https://fly.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764395-137ec949-382c-43bd-a3c0-0cb8cb22e22d.svg",
-                alt: "SQLite",
-                href: "https://sqlite.org",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764484-ad64a21a-d7fb-47e3-8669-ec046da20c1f.svg",
-                alt: "Prisma",
-                href: "https://prisma.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764276-a516a239-e377-4a20-b44a-0ac7b65c8c14.svg",
-                alt: "Tailwind",
-                href: "https://tailwindcss.com",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157764454-48ac8c71-a2a9-4b5e-b19c-edef8b8953d6.svg",
-                alt: "Cypress",
-                href: "https://www.cypress.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772386-75444196-0604-4340-af28-53b236faa182.svg",
-                alt: "MSW",
-                href: "https://mswjs.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772447-00fccdce-9d12-46a3-8bb4-fac612cdc949.svg",
-                alt: "Vitest",
-                href: "https://vitest.dev",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772662-92b0dd3a-453f-4d18-b8be-9fa6efde52cf.png",
-                alt: "Testing Library",
-                href: "https://testing-library.com",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772934-ce0a943d-e9d0-40f8-97f3-f464c0811643.svg",
-                alt: "Prettier",
-                href: "https://prettier.io",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157772990-3968ff7c-b551-4c55-a25c-046a32709a8e.svg",
-                alt: "ESLint",
-                href: "https://eslint.org",
-              },
-              {
-                src: "https://user-images.githubusercontent.com/1500684/157773063-20a0ed64-b9f8-4e0b-9d1e-0b65a3d4a6db.svg",
-                alt: "TypeScript",
-                href: "https://typescriptlang.org",
-              },
-            ].map((img) => (
-              <a
-                key={img.href}
-                href={img.href}
-                className="flex h-16 w-32 justify-center p-1 grayscale transition hover:grayscale-0 focus:grayscale-0"
-              >
-                <img alt={img.alt} src={img.src} className="object-contain" />
-              </a>
+        <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
+          <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
+            {features.map((feature) => (
+              <div key={feature.name} className="relative pl-9">
+                <dt className="font-semibold text-gray-900 flex gap-2">
+                  {feature.icon}
+                  {feature.name}
+                </dt>{" "}
+                <dd
+                  className="inline"
+                  dangerouslySetInnerHTML={{ __html: feature.description }}
+                ></dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </div>
       </div>
-    </main>
+      <NavigationSiteFooter />
+    </div>
   );
 }
+
+const features = [
+  {
+    name: "GDPR and CCPA user flows",
+    description: `<a class="underline" href="https://gdpr.eu/what-is-gdpr/">GDPR</a> and <a class="underline" href="https://www.oag.ca.gov/privacy/ccpa">CCPA</a> self-serve user flows with do not sell, data access, and data deletion flows, including: Default do not sell on signup, data access, data deletion, and undo sign up.
+          `,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/data-desktop.png"
+          alt="screenshot of data settings page"
+        />
+      </BrowserMockup>
+    ),
+    icon: <CheckBadgeIcon className="w-4" />,
+  },
+
+  {
+    name: "Self Hosted Deployments",
+    description: `Automated provisioning and deployments to a DIY VPS with Ansible: long-running node server with <a class="underline" href="https://nginx.org/en/">Nginx</a> proxy server, <a class="underline" href="https://help.ubuntu.com/community/UFW">UFW</a> firewall, <a class="underline" href="https://certbot.eff.org/">Certbot</a> for SSL, and <a class="underline" href="https://en.wikipedia.org/wiki/Systemd">systemd</a> for node daemonization`,
+    screenshot: (
+      <img
+        src="/site/deployment.png"
+        alt="screenshot of a terminal window with the command npm run deploy typed in"
+        className="md:w-1/2 mt-4 md:-mt-4"
+      />
+    ),
+    icon: <ServerStackIcon className="w-4" />,
+  },
+  {
+    name: "File upload",
+    description: `Upload files directly to your own server with zero configuration. No services needed, just the filesystem on the DIY server, and Remix.run's built in file upload handlers.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/edit-note.png"
+          alt="screenshot of the profile settings page"
+        />
+      </BrowserMockup>
+    ),
+    icon: <CloudArrowUpIcon className="w-4" />,
+  },
+  {
+    name: "Transactional emails",
+    description: `Automatic emails using <a class="underline" href="https://sendgrid.com/">Sendgrid</a> with secure tokens for welcome  and forgot password. We're actively looking for a privacy-first replacement. Get in touch if you know of one.`,
+    screenshot: (
+      <img
+        src="/site/email.png"
+        alt="screenshot of welcome email"
+        className="md:w-1/2 mt-4 md:-mt-4"
+      />
+    ),
+    icon: <EnvelopeIcon className="w-4" />,
+  },
+  {
+    name: "Light weight CMS",
+    description: `Local content management built into the database with a <a href="https://templates.tiptap.dev/">tiptap</a> editing experience.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/edit-page.png"
+          alt="screenshot of the page editing experience"
+        />
+      </BrowserMockup>
+    ),
+    icon: <DocumentTextIcon className="w-4" />,
+  },
+  {
+    name: "Autocomplete search",
+    description: `Type ahead search UI using <a href="https://www.fusejs.io/" class="underline">fuse.js</a> to help find your notes with client-side filtering.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img src="/site/search.png" alt="screenshot of welcome email" />
+      </BrowserMockup>
+    ),
+    icon: <MagnifyingGlassIcon className="w-4" />,
+  },
+  {
+    name: "User Profiles",
+    description: `User profiles backed by email/Password authentication using <a class="underline" href="https://remix.run/utils/sessions#md-createcookiesessionstorage">cookie-based sessions</a>.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/edit-profile.png"
+          alt="screenshot of the profile settings page"
+        />
+      </BrowserMockup>
+    ),
+    icon: <UserGroupIcon className="w-4" />,
+  },
+  {
+    name: "UI Library",
+    description: `We integrated <a class="underline" href="https://ui.shadcn.io">ShadCN</a> so you can build your design system into the UI from there.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/shadcn.png"
+          alt="screenshot of the shadcn dashboard example"
+        />
+      </BrowserMockup>
+    ),
+    icon: <AdjustmentsVerticalIcon className="w-4" />,
+  },
+  {
+    name: "Database",
+    description: `This stack ships a production-ready <a class="underline" href="https://sqlite.org">SQLite Database</a> and the <a class="underline" href="https://prisma.io">Prisma ORM</a>.`,
+    screenshot: (
+      <img
+        src="/site/sqlite.png"
+        alt="screenshot of prisma studio"
+        className="md:w-1/2 mt-4 md:-mt-4"
+      />
+    ),
+    icon: <CircleStackIcon className="w-4" />,
+  },
+
+  {
+    name: "Continuous Integrations",
+    description: `<a class="underline" href="https://github.com/features/actions">GitHub Actions</a> for linting, typechecking, and smoke testing on merge to production and staging environments.
+        `,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img
+          src="/site/github-action.png"
+          alt="screenshot of a github action result"
+        />
+      </BrowserMockup>
+    ),
+    icon: <BeakerIcon className="w-4" />,
+  },
+  {
+    name: "Remix official template goodies",
+    description: `Styling with <a class="underline" href="https://tailwindcss.com/">Tailwind</a>, types with <a class="underline" href="https://typescriptlang.org">TypeScript</a>, testing with <a class="underline" href="https://cypress.io">Cypress</a>, <a class="underline" href="https://vitest.dev">Vitest</a> and <a class="underline" href="https://testing-library.com">Testing Library</a>, formatting with <a class="underline" href="https://prettier.io">Prettier</a> , linting with <a class="underline" href="https://eslint.org">ESLint</a>, mocking with <a class="underline" href="https://mswjs.io">MSW</a>.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img src="/site/indie-stack.png" alt="screenshot of notes dashboard" />
+      </BrowserMockup>
+    ),
+    icon: <CodeBracketIcon className="w-4" />,
+  },
+  {
+    name: "Built with Remix.run",
+    description: `Built with <a class="underline" href="https://remix.run">Remix.run</a>, the full stack web framework that follows web standards with backing from Shopify.`,
+    screenshot: (
+      <BrowserMockup className="md:w-1/2">
+        <img src="/site/remix.png" alt="screenshot of remix.run home page" />
+      </BrowserMockup>
+    ),
+    icon: "💿 ",
+  },
+];

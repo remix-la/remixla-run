@@ -1,20 +1,24 @@
-# Remix Indie Stack
+# website
 
-![The Remix Indie Stack](https://repository-images.githubusercontent.com/465928257/a241fa49-bd4d-485a-a2a5-5cb8e4ee0abf)
+This is stack is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack), with additions that center data privacy, self hosting, and add a responsive UI with [shadcn](https://ui.shadcn.com/blocks). This stack depends on a file system for sqlite and file upload, and on node for crypto functions. Read more about [Remix Stacks](https://remix.run/stacks) to get started.
 
-Learn more about [Remix Stacks](https://remix.run/stacks).
+The Privacy Stack comes with a default notes app that showcases its features. To generate a new app with the Privacy Stack run:
 
-```sh
-npx create-remix@latest --template remix-run/indie-stack
-```
+`npx create-remix@latest --template bocoup/privacy-stack`
 
 ## What's in the stack
 
-- [Fly app deployment](https://fly.io) with [Docker](https://www.docker.com/)
 - Production-ready [SQLite Database](https://sqlite.org)
-- Healthcheck endpoint for [Fly backups region fallbacks](https://fly.io/docs/reference/configuration/#services-http_checks)
-- [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
+- [GitHub Actions](https://github.com/features/actions) for linting, typechecking, and smoke testing on merge to production and staging environments
 - Email/Password Authentication with [cookie-based sessions](https://remix.run/utils/sessions#md-createcookiesessionstorage)
+- Transactional emails with secure tokens, including forgot password and delete my data, with [Sendgrid](https://sendgrid.com/)
+- [GDPR](https://gdpr.eu/what-is-gdpr/) and [CCPA](https://www.oag.ca.gov/privacy/ccpa) self-serve flows with do not sell, data access, and data deletion flows
+  - Default do not sell on signup
+  - See what data is stored about me
+  - Delete most of my data
+  - Delete all of my data
+  - Undo sign up
+- Automated provisioning and deployments to a DIY VPS with Ansible: long-running node server with [Nginx](https://nginx.org/en/) proxy server, [UFW](https://help.ubuntu.com/community/UFW) firewall, [Certbot](https://certbot.eff.org/) for SSL, and [systemd](https://en.wikipedia.org/wiki/Systemd) for node daemonization
 - Database ORM with [Prisma](https://prisma.io)
 - Styling with [Tailwind](https://tailwindcss.com/)
 - End-to-end testing with [Cypress](https://cypress.io)
@@ -24,21 +28,7 @@ npx create-remix@latest --template remix-run/indie-stack
 - Linting with [ESLint](https://eslint.org)
 - Static Types with [TypeScript](https://typescriptlang.org)
 
-Not a fan of bits of the stack? Fork it, change it, and use `npx create-remix --template your/repo`! Make it your own.
-
-## Quickstart
-
-Click this button to create a [Gitpod](https://gitpod.io) workspace with the project set up and Fly pre-installed
-
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/remix-run/indie-stack/tree/main)
-
 ## Development
-
-- Initial setup:
-
-  ```sh
-  npm run setup
-  ```
 
 - Start dev server:
 
@@ -50,81 +40,8 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 The database seed script creates a new user with some data you can use to get started:
 
-- Email: `rachel@remix.run`
-- Password: `racheliscool`
-
-### Relevant code:
-
-This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting notes.
-
-- creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
-- user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
-- creating, and deleting notes [./app/models/note.server.ts](./app/models/note.server.ts)
-
-## Deployment
-
-This Remix Stack comes with two GitHub Actions that handle automatically deploying your app to production and staging environments.
-
-Prior to your first deployment, you'll need to do a few things:
-
-- [Install Fly](https://fly.io/docs/getting-started/installing-flyctl/)
-
-- Sign up and log in to Fly
-
-  ```sh
-  fly auth signup
-  ```
-
-  > **Note:** If you have more than one Fly account, ensure that you are signed into the same account in the Fly CLI as you are in the browser. In your terminal, run `fly auth whoami` and ensure the email matches the Fly account signed into the browser.
-
-- Create two apps on Fly, one for staging and one for production:
-
-  ```sh
-  fly apps create website-4dce
-  fly apps create website-4dce-staging
-  ```
-
-  > **Note:** Make sure this name matches the `app` set in your `fly.toml` file. Otherwise, you will not be able to deploy.
-
-  - Initialize Git.
-
-  ```sh
-  git init
-  ```
-
-- Create a new [GitHub Repository](https://repo.new), and then add it as the remote for your project. **Do not push your app yet!**
-
-  ```sh
-  git remote add origin <ORIGIN_URL>
-  ```
-
-- Add a `FLY_API_TOKEN` to your GitHub repo. To do this, go to your user settings on Fly and create a new [token](https://web.fly.io/user/personal_access_tokens/new), then add it to [your repo secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) with the name `FLY_API_TOKEN`.
-
-- Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
-
-  ```sh
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app website-4dce
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app website-4dce-staging
-  ```
-
-  If you don't have openssl installed, you can also use [1Password](https://1password.com/password-generator) to generate a random secret, just replace `$(openssl rand -hex 32)` with the generated secret.
-
-- Create a persistent volume for the sqlite database for both your staging and production environments. Run the following:
-
-  ```sh
-  fly volumes create data --size 1 --app website-4dce
-  fly volumes create data --size 1 --app website-4dce-staging
-  ```
-
-Now that everything is set up you can commit and push your changes to your repo. Every commit to your `main` branch will trigger a deployment to your production environment, and every commit to your `dev` branch will trigger a deployment to your staging environment.
-
-### Connecting to your database
-
-The sqlite database lives at `/data/sqlite.db` in your deployed application. You can connect to the live database by running `fly ssh console -C database-cli`.
-
-### Getting Help with Deployment
-
-If you run into any issues deploying to Fly, make sure you've followed all of the steps above and if you have, then post as many details about your deployment (including your app name) to [the Fly support community](https://community.fly.io). They're normally pretty responsive over there and hopefully can help resolve any of your deployment issues and questions.
+- Email: `boaz@bocoup.com`
+- Password: `letmeinplease`
 
 ## GitHub Actions
 
@@ -172,3 +89,38 @@ This project uses ESLint for linting. That is configured in `.eslintrc.js`.
 ### Formatting
 
 We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
+
+## Deployment
+
+This project includes a diy deployment workflow from the [bocoup/deploy](https://github.com/bocoup/deploy) repo. Follow the instructions in the [deploy README](/deploy/README.md). It will guide you through the process of:
+
+1. Creating or catting your SSH keys
+2. Getting a server
+3. Installing Ansible locally on your computer
+
+Once you follow those steps, you can switch back here. You'll need to do four more things:
+
+4. Update `inventory.yml` in the root of this repository with values that match your server.
+5. Lock down the server
+
+```sh
+npm run lockdown
+```
+
+6. Provision the server
+
+```sh
+npm run provision
+```
+
+7. Deploy the project
+
+```sh
+npm run deploy
+```
+
+Once you've completed this step, you can run `npm run deploy` anytime you'd like to deploy
+
+## GitHub Actions
+
+We use GitHub Actions for continuous integration and deployment. Anything that gets into the main branch will be deployed to production after running tests/build/etc.
