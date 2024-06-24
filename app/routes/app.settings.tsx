@@ -31,8 +31,8 @@ export default function SettingsShell() {
                   isPending
                     ? "animate-pulse"
                     : isActive
-                    ? "font-bold text-primary"
-                    : ""
+                      ? "font-bold text-primary"
+                      : ""
                 }
               >
                 {navItem.label}
