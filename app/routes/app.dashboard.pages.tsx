@@ -51,11 +51,7 @@ export default function PagePage() {
     <div className="flex-1 flex flex-col space-y-4">
       <div className="flex shrink items-center justify-items-start">
         <h1 className="text-lg font-semibold md:text-2xl w-full">All Pages</h1>
-        <Button
-          asChild
-          variant="ghost"
-          aria-description="Click to add items to form"
-        >
+        <Button asChild variant="ghost">
           <Link to="/app/dashboard/page/new" className="p-4">
             <span className="sr-only">Add page</span>
             <CirclePlus />
@@ -83,10 +79,7 @@ export default function PagePage() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      aria-description="Click to add items to form"
-                    >
+                    <Button variant="ghost">
                       <EllipsisVerticalIcon className="w-6" />
                     </Button>
                   </DropdownMenuTrigger>
