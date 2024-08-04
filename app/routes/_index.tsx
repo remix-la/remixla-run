@@ -1,9 +1,11 @@
 import type { MetaFunction } from "@remix-run/node";
 
+
 import { useOptionalUser } from "~/utils";
 
-
+import Header from "../components/Header";
 import { BackgroundGradientAnimation } from "../components/ui/background-gradient-animation";
+
 
 
 export const meta: MetaFunction = () => [{ title: "Remix Sample - Box " }];
@@ -16,16 +18,7 @@ export default function Index() {
 
   return (
     <>
-      <header className="header left-0 top-0 py-6 z-40 flex w-full items-center absolute bg-transparent">
-        <div className="container mx-2 md:mx-auto">
-          <div className="relative mx-2 flex items-center justify-end">
-            <ul className="flex gap-8">
-              <li className="bg-clip-text text-transparent bg-gradient-to-r from-slate-400 via-blue-300 to-teal-400 text-lg font-bold">🌴 About Remix LA</li>
-              <li className="bg-clip-text text-transparent bg-gradient-to-r from-slate-400 via-blue-200 to-red-300 text-lg font-bold">🌴 Contact</li>
-            </ul>
-          </div>
-        </div>
-      </header>
+      <Header />
       <main className="flex flex-col relative sm:items-center sm:justify-center">
         <div className="box__container w-full h-[100vh]">
           <BackgroundGradientAnimation>
